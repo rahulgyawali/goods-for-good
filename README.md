@@ -1,4 +1,4 @@
-# Goods for Good
+<h1>Project Overview - Goods for Good</h1>
 This application would allow the users to
 donate goods to various campaigns posted throughout the United States. These campaigns
 can target various causes like earthquakes, storms, floods, etc. Users can donate goods like
@@ -18,12 +18,11 @@ Team Members:
     <li>Himanshu Pant</li>
     <li>Deep Zaveri</li>
 <ul>
-<br>
-The overall system architecture is provided here with:
-<br>
+
+<h3>System Diagram</h3>
 <img src="Architecture.png">
-<br>
-<b>Steps to run the project:</b>
+
+<h4>Steps to run the project:</h4>
 
 <ol>
 <li>Clone this repository</li>
@@ -40,7 +39,12 @@ The overall system architecture is provided here with:
 <img src="./public/images/dataset-folder-structure.png">
 <li>Create MongoDB Sharded Architecture as: </li>
 <code>
+
+###### Create a docker network #########
+
 docker network create mongo-shard-cluster
+
+##### Create three config servers to look after each replica set #########
 
 docker run -d --net mongo-shard-cluster --name config-svr-1 -p 27101:27017 mongo:4.4 mongod --port 27017 --configsvr --replSet config-svr-replica-set
 
@@ -49,21 +53,19 @@ docker run -d --net mongo-shard-cluster --name config-svr-2 -p 27102:27017 mongo
 docker run -d --net mongo-shard-cluster --name config-svr-3 -p 27103:27017 mongo:4.4 mongod --port 27017 --configsvr --replSet config-svr-replica-set
 
 
+#### Initiate Configuration Servers ####
+
 docker exec -it config-svr-1 mongo
 
 rs.initiate({
     _id: "config-svr-replica-set",
     configsvr: true,
-    members: [
-        { _id: 0, host: "config-svr-1:27017" },
-        { _id: 1, host: "config-svr-2:27017" },
-        { _id: 2, host: "config-svr-3:27017" }
-    ]
+    members: [{ _id: 0, host: "config-svr-1:27017" },{ _id: 1, host: "config-svr-2:27017" },{ _id: 2, host: "config-svr-3:27017" }]
 })
 
 rs.status()
 
-###############################
+##### Create  Replicat Set for Each shard   ######
 
 docker run -d --net mongo-shard-cluster --name shard-1-node-a -p 27111:27017 mongo:4.4 mongod --port 27017 --shardsvr --replSet shard-1-replica-set
 docker run -d --net mongo-shard-cluster --name shard-1-node-b -p 27121:27017 mongo:4.4 mongod --port 27017 --shardsvr --replSet shard-1-replica-set
@@ -77,7 +79,8 @@ docker run -d --net mongo-shard-cluster --name shard-3-node-a -p 27113:27017 mon
 docker run -d --net mongo-shard-cluster --name shard-3-node-b -p 27123:27017 mongo:4.4 mongod --port 27017 --shardsvr --replSet shard-3-replica-set
 docker run -d --net mongo-shard-cluster --name shard-3-node-c -p 27133:27017 mongo:4.4 mongod --port 27017 --shardsvr --replSet shard-3-replica-set
 
-###############################
+##### Initiate nodes in shard 1  ##################
+
 docker exec -it shard-1-node-a mongo
 
 rs.initiate({
@@ -90,6 +93,7 @@ rs.initiate({
 })
 rs.status()
 
+##### Initiate nodes in shard 2  ##################
 
 docker exec -it shard-2-node-a mongo
 
@@ -103,6 +107,7 @@ rs.initiate({
 })
 rs.status()
 
+##### Initiate nodes in shard 3  ##################
 
 docker exec -it shard-3-node-a mongo
 
@@ -116,13 +121,11 @@ rs.initiate({
 })
 rs.status()
 
-#############################
+#####  Configure router nodes #################
 
 docker run -d --net mongo-shard-cluster --name router-1 -p 27141:27017 mongo:4.4 mongos --port 27017 --configdb config-svr-replica-set/config-svr-1:27017,config-svr-2:27017,config-svr-3:27017 --bind_ip_all
 
-docker run -d --net mongo-shard-cluster --name router-2 -p 27142:27017 mongo:4.4 mongos --port 27017 --configdb config-svr-replica-set/config-svr-1:27017,config-svr-2:27017,config-svr-3:27017 --bind_ip_all
-
-#############################
+##### Start Router 1 and add corresponding shards ################
 
 docker exec -it router-1 mongo
 
@@ -134,24 +137,28 @@ sh.addShard("shard-3-replica-set/shard-3-node-a:27017", "shard-3-replica-set/sha
 
 sh.status()
 
-################
+##### Connect to mongos router ########
 
-// Connect to the mongos router
 db.adminCommand({ listShards: 1 });
-
-// Shows all shards
 
 sh.status();
 
+##### Enable Sharing #############
+
 sh.enableSharding("donation-system");
+
+#### Create Indexes #######
 db.campaigns.createIndex({ cause: 1 })
 db.campaigns.createIndex({ title: "text"});
 sh.shardCollection("donation-system.campaigns", { cause: 1 })
+
+#### Configure Split for Sharding ########
 
 sh.splitAt("donation-system.campaigns", { cause: "Flooding and Water-Related" });
 sh.splitAt("donation-system.campaigns", { cause: "Heat and Drought" });
 sh.splitAt("donation-system.campaigns", { cause: "Wind and Storm" });
 
+#### Assign replica set for each Shards #####
 sh.moveChunk("donation-system.campaigns", { cause: "Flooding and Water-Related" }, "shard-1-replica-set")
 sh.moveChunk("donation-system.campaigns", { cause: "Heat and Drought" }, "shard-2-replica-set")
 sh.moveChunk("donation-system.campaigns", { cause: "Wind and Storm" }, "shard-3-replica-set")
@@ -159,6 +166,7 @@ sh.moveChunk("donation-system.campaigns", { cause: "Wind and Storm" }, "shard-3-
 
 If facing error in secondary mongo shell: rs.secondaryOk()
 </code>
+
 <li>Start All Mongo Docker Containers</li>
 <li>Pip install required packages for backend.py and Data-Upload.ipynb</li>
 <li>Execute Data-Upload.ipynb to insert data and upload images in s3<br>
