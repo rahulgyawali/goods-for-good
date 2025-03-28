@@ -11,9 +11,18 @@ application - GoFundMe does a similar task where they collect money for a specif
 Our solution to donate goods addresses this gap in the market to help unfortunate people by
 donating items. A MongoDB distributed Architecture is setup for this to provide scalability, replication and fault-tolerance.
 
+Team Members: 
+<ul>
+    <li>Dhruv Amit Shah</li>
+    <li>Rahul Gyawali</li>
+    <li>Himanshu Pant</li>
+    <li>Deep Zaveri</li>
+<ul>
+
+The overall system architecture is provided here with:
+<img src="Architecture.png">
 
 <b>Steps to run the project:</b>
-
 
 <ol>
 <li>Clone this repository</li>
