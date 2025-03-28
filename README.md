@@ -20,6 +20,7 @@ Team Members:
 <ul>
 <br>
 The overall system architecture is provided here with:
+<br>
 <img src="Architecture.png">
 <br>
 <b>Steps to run the project:</b>
