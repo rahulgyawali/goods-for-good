@@ -18,10 +18,10 @@ Team Members:
     <li>Himanshu Pant</li>
     <li>Deep Zaveri</li>
 <ul>
-
+<br>
 The overall system architecture is provided here with:
 <img src="Architecture.png">
-
+<br>
 <b>Steps to run the project:</b>
 
 <ol>
