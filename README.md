@@ -21,8 +21,13 @@ Team Members:
 
 <h3>System Diagram</h3>
 <img src="Architecture.png">
-
-<h4>Steps to run the project:</h4>
+<h3>UI Flow</h3>
+<img src="./public/images/login-page.png">
+<img src="./public/images/search-by-title.png">
+<img src="./public/images/donation-details.png">
+<img src="./public/images/successful-donation.png">
+<img src="./public/images/confirmation-email.png">
+<h3>Steps to run the project:</h3>
 
 <ol>
 <li>Clone this repository</li>
