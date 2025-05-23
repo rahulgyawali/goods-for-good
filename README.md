@@ -45,7 +45,7 @@ Team Members:
 <li>Create MongoDB Sharded Architecture as: </li>
 <code>
 
-###### Create a docker network #########
+<h4>Create a docker network</h4>
 
 docker network create mongo-shard-cluster
 
@@ -126,7 +126,7 @@ rs.initiate({
 })
 rs.status()
 
-#####  Configure router nodes #################
+<h4>Configure router nodes</h4> 
 
 docker run -d --net mongo-shard-cluster --name router-1 -p 27141:27017 mongo:4.4 mongos --port 27017 --configdb config-svr-replica-set/config-svr-1:27017,config-svr-2:27017,config-svr-3:27017 --bind_ip_all
 
